@@ -1,5 +1,6 @@
 import { FFmpegFrameExtractor } from "../infrastructure/ffmpeg/ffmpeg-frame-extractor";
 import { NodeUuid } from "../infrastructure/id/node-uuid";
+import { BullQueue } from "../infrastructure/queue/bull-queue";
 import { FSStorage } from "../infrastructure/storage/fs-storage";
 import { SystemClock } from "../infrastructure/time/system-clock";
 import { ArchiverZipService } from "../infrastructure/zip/archiver-zip-service";
@@ -9,6 +10,7 @@ import { ListProcessedUseCase } from "../application/use-cases/list-processed-us
 import { ProcessVideoUseCase } from "../application/use-cases/process-video-use-case";
 
 import { DownloadController } from "../interface/http/controllers/download-controller";
+import { EnqueueController } from "../interface/http/controllers/enqueue-controller";
 import { StatusController } from "../interface/http/controllers/status-controller";
 import { UploadController } from "../interface/http/controllers/upload-controller";
 
@@ -18,6 +20,7 @@ export function container() {
   const zip = new ArchiverZipService();
   const uuid = new NodeUuid();
   const clock = new SystemClock();
+  const queue = new BullQueue("video-jobs");
 
   const paths = { tempRoot: "temp", outputsRoot: "outputs" };
 
@@ -32,11 +35,18 @@ export function container() {
   const listUC = new ListProcessedUseCase(storage, paths.outputsRoot);
   const getZipUC = new GetZipStreamUseCase(storage, paths.outputsRoot);
 
+  const enqueueController = new EnqueueController(queue);
   const uploadController = new UploadController(processUC, {
     uploadsRoot: "uploads",
   });
   const statusController = new StatusController(listUC);
   const downloadController = new DownloadController(getZipUC);
 
-  return { uploadController, statusController, downloadController };
+  return {
+    uploadController,
+    statusController,
+    downloadController,
+    processVideoUseCase: processUC,
+    enqueueController,
+  };
 }
