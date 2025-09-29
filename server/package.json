@@ -1,0 +1,28 @@
+{
+  "name": "server",
+  "description": "",
+  "author": "Felipe Leal <lealfelipealves@gmail.com>",
+  "license": "ISC",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "archiver": "^7.0.1",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "glob": "^11.0.3",
+    "multer": "^2.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.2"
+  },
+  "keywords": []
+}
